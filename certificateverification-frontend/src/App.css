@@ -1,0 +1,158 @@
+.bg-purple {
+    background-color: #58468c !important
+}
+
+.bg-navy-blue {
+    background-color: #012970 !important;
+}
+
+.bg-green {
+    background-color: green !important
+}
+
+.bg-yellow {
+    background-color: gold;
+}
+
+.bg-grey {
+    background: #012a7076;
+}
+
+.bg-black {
+    background-color: #000;
+}
+
+.bg-orange {
+    background-color: #e69154 !important;
+}
+
+.bg-dark-orange {
+    background-color: #e98752 !important;
+}
+
+.color-white {
+    color: #fff !important;
+}
+
+.color-purple {
+    color: #58468c;
+}
+
+.color-navy {
+    color: #012970
+}
+
+.color-red {
+    color: red;
+}
+
+.color-green {
+    color: green;
+}
+
+.color-grey {
+    color: #787f87;
+}
+
+.color-orange {
+    color: #ff6f28;
+}
+
+.color-light-orange {
+    color: #eb7f44;
+}
+
+.w-33 {
+    width: 32%;
+}
+
+.w-70 {
+    width: 70%;
+}
+
+.shadow {
+    box-shadow: 0 0 5px 0 gray;
+}
+
+.border-color {
+    border-color: #012970;
+}
+
+.hero-section {
+    background: url(../assets/hero-section-cover.png) no-repeat;
+    background-attachment: fixed;
+    background-position: 50%;
+    background-size: cover;
+    height: 84vh;
+    margin-bottom: -100px;
+    width: 100%;
+}
+
+.hover-transparent-background {
+    background-color: transparent !important;
+}
+
+/* ********** Date Picker Custom CSS ********** */
+
+.date-picker .css-10o2lyd-MuiStack-root {
+    flex-direction: column !important;
+}
+
+.date-picker .css-sx5hge {
+    flex-direction: column !important;
+
+}
+
+.css-10o2lyd-MuiStack-root>:not(style)~:not(style) {
+    margin-left: 0px !important;
+}
+
+.css-sx5hge> :not(style)~ :not(style) {
+    margin-left: 0px !important;
+}
+
+.css-nxo287-MuiInputBase-input-MuiOutlinedInput-input {
+    padding: 9.5px 14px !important;
+}
+
+.css-1uvydh2 {
+    padding: 10.5px 0px 10.5px 14px !important;
+}
+
+/* *********** KeyFrames *********** */
+
+@keyframes slideFromLeft {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideFromBottom {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideFromRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
