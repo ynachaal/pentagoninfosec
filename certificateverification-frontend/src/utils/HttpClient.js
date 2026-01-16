@@ -3,8 +3,8 @@ import axios from 'axios';
 class HttpClient {
     constructor() {
         this.instance = axios.create({
-           // baseURL: 'https://api.pentagoninfosec.com/api/v1', // Replace with your API base URL
-            baseURL: 'http://localhost:4000/api/v1',
+           baseURL: 'https://certverify.pentagoninfosec.com/api/v1', // Replace with your API base URL
+            // baseURL: 'http://localhost:4000/api/v1',
         });
 
         this.instance.interceptors.request.use(

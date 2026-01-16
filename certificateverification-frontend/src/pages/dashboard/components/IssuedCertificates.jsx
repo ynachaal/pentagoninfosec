@@ -87,6 +87,7 @@ const IssuedCertificates = () => {
 
     const generatePDF = (data) => {
         let content = '';
+        let orientation_val = 'portrait';
         if (data.certificateType.includes('ISO') || data.certificateType.includes('iso')) {
             content = `
             <!DOCTYPE html>
@@ -380,8 +381,17 @@ const IssuedCertificates = () => {
                     </body>
                 </html>
             `;
+            orientation_val = 'portrait';
         }
         else {
+            const showHipaaLogo =
+                data.certificateType?.toUpperCase() === 'HIPAA COMPLIANT'
+                    ? `
+      <div class="right-sign">
+        <img src="/assets/hipaa.webp" alt="HIPAA Logo" class="certi-iogo">
+      </div>
+    `
+                    : '';
             content =
                 ` <!DOCTYPE html>
                     <html lang="en">
@@ -397,9 +407,9 @@ const IssuedCertificates = () => {
                         .pdf-wrapper {
                             margin: auto;
                             text-align: center;
-                            height: 101.7vh;
-                            width: 100%;
-                            position: relative;
+                            width: 297mm;
+                            height: 210mm;
+                            max-height: 210mm;
                         }
                 
                         .pdf-image {
@@ -757,9 +767,7 @@ const IssuedCertificates = () => {
                                         <p class="certi-number font-bold">ISACA ID: <span class="font-regular">1893396</span></p>
                                     </div>
                                 </div>
-                                <div class="right-sign">
-                                    <img src="/assets/hipaa.webp" alt="" class="certi-iogo">
-                                </div>
+                               ${showHipaaLogo}
                             </div>
                             <div class="bottom-content">
                                 <p><span>Pentagon Infosec: (United States)</span> 30 N Gould St Ste r, Sheridan, WY 82801.</p>
@@ -773,13 +781,15 @@ const IssuedCertificates = () => {
 
             </html>
         `;
+            orientation_val = 'landscape';
         }
+       
         const options = {
             filename: data.certicateNumber,
 
             image: { type: 'png', quality: 1 },
-            html2canvas: { scale: window.devicePixelRatio * 2, backgroundColor: null, useCORS: true, foreignObjectRendering: false },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: false, precision: 16 },
+            html2canvas: { scale: 2, backgroundColor: null, useCORS: true, foreignObjectRendering: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: orientation_val, compress: false, precision: 16 },
             pagebreak: { mode: ['avoid-all'] }
         };
         html2pdf().from(content).set(options).save();

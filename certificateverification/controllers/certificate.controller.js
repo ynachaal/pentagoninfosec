@@ -163,7 +163,7 @@ module.exports.generateCertificate = async (req, res, next) => {
       process.env.CERTIFICATE_PREFIX +
       req.body.certicateNamePostFix.replace(/ /g, '-') +
       "-" +
-      100001;
+      209001;
     // Generate and save the certificate
     const savedCertificate = await generateAndSaveCertificate(
       startingNumber,
@@ -185,31 +185,38 @@ module.exports.generateCertificate = async (req, res, next) => {
     return next(err);
   }
 };
-
-// Genrate certificate and check if exists in database
 const generateAndSaveCertificate = async (startingNumber, req, next) => {
   try {
-    let certificateNumber = generateCertificateNumber(startingNumber);
+    let certificateNumber;
+
+    // Fetch the last created certificate globally (ignore type)
     const existingCertificate = await Certificate.find()
       .sort({ createdAt: -1 })
       .limit(1);
-    if (existingCertificate && existingCertificate.length > 0) {
-      certificateNumber = existingCertificate[0].certicateNumber;
-      const delimiter = "-";
-      let lastIndex = certificateNumber.lastIndexOf(delimiter);
-      let incrementedNumber = +certificateNumber.split("-")[1] + 1;
-      if (lastIndex !== -1) {
-        // let firstPart = certificateNumber.substring(0, lastIndex);
-        incrementedNumber = +certificateNumber.substring(lastIndex + 1) + 1;
-      }
 
-      startingNumber =
-        process.env.CERTIFICATE_PREFIX +
-        (req.body.certicateNamePostFix.includes(' ') ? req.body.certicateNamePostFix.replace(/ /g, '-') : req.body.certicateNamePostFix) +
-        "-" +
-        incrementedNumber;
-      certificateNumber = generateCertificateNumber(startingNumber);
+    let nextNumber = 209001; // default starting number for new certificates
+
+    if (existingCertificate && existingCertificate.length > 0) {
+      const lastCertNumber = existingCertificate[0].certicateNumber;
+      const parts = lastCertNumber.split("-");
+      const lastNumeric = parseInt(parts[parts.length - 1], 10);
+
+      // Only increment if last number is >= 209001
+      if (!isNaN(lastNumeric) && lastNumeric >= 209001) {
+        nextNumber = lastNumeric + 1;
+      }
     }
+
+    // Build the new certificate number
+    certificateNumber =
+      process.env.CERTIFICATE_PREFIX +
+      (req.body.certicateNamePostFix.includes(" ")
+        ? req.body.certicateNamePostFix.replace(/ /g, "-")
+        : req.body.certicateNamePostFix) +
+      "-" +
+      nextNumber;
+
+    // --- existing logic for uploading files and saving certificate ---
     try {
       const evidences = [];
       for (const file of req.files) {
@@ -218,23 +225,20 @@ const generateAndSaveCertificate = async (startingNumber, req, next) => {
           Bucket: AWS_S3_BUCKET_NAME,
           Key: process.env.AWS_S3_BUCKET_FOLDER + file.filename,
           Body: fileContent,
-          ContentType: file.mimetype
+          ContentType: file.mimetype,
         };
         try {
-          const location = await multipartUpload(file.path, params.Bucket, params.Key, file.mimetype);
+          const location = await multipartUpload(
+            file.path,
+            params.Bucket,
+            params.Key,
+            file.mimetype
+          );
           evidences.push(location);
         } catch (err) {
           console.error("Error uploading file to S3", err);
         }
-      };
-      // const params = {
-      //   Bucket: AWS_S3_BUCKET_NAME,
-      //   Key: process.env.AWS_S3_BUCKET_FOLDER + req.file.filename,
-      //   Body: fileContent,
-      //   ContentType: req.file.mimetype
-      // };
-
-      // const data = await s3.upload(params).promise();
+      }
 
       const certicate = new Certificate({
         certificateName: req.body.certificateName,
@@ -243,47 +247,48 @@ const generateAndSaveCertificate = async (startingNumber, req, next) => {
         companyName: req.body.companyName,
         issuedDate: req.body.issuedDate,
         validTill: req.body.validTill,
-        // approvedOn: req.body.approvedOn,
         association: req.body.association,
         evidence: evidences,
         issueBy: req.body.issueBy,
         issueTo: req.body.issueTo,
         notes: req.body.notes,
-        isDeleted: false
+        isDeleted: false,
       });
 
       const savedCertificate = await certicate.save();
       return savedCertificate;
     } catch (error) {
-      const baseURL = `${req.protocol}://${req.get('host')}`;
+      const baseURL = `${req.protocol}://${req.get("host")}`;
       const evidences = [];
       for (const file of req.files) {
-        evidences.push(baseURL + '/' + process.env.UPLOAD_FOLDER + '/' + file.filename);
-      };
+        evidences.push(
+          baseURL + "/" + process.env.UPLOAD_FOLDER + "/" + file.filename
+        );
+      }
       const certicate = new Certificate({
-        certicateName: req.body.certicateName,
+        certicateName: req.body.certificateName,
         certicateNamePostFix: req.body.certicateNamePostFix,
         certicateNumber: certificateNumber,
         companyName: req.body.companyName,
         issuedDate: req.body.issuedDate,
         validTill: req.body.validTill,
-        // approvedOn: req.body.approvedOn,
         association: req.body.association,
         evidence: evidences,
         issueBy: req.body.issueBy,
         issueTo: req.body.issueTo,
         notes: req.body.notes,
-        isDeleted: false
+        isDeleted: false,
       });
 
       const savedCertificate = await certicate.save();
       return savedCertificate;
     }
-
   } catch (error) {
     return next(error);
   }
 };
+
+
 
 const multipartUpload = async (filePath, bucketName, key, fileMimeType) => {
   const fileContent = fs.readFileSync(filePath);
