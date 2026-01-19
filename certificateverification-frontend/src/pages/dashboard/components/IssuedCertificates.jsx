@@ -384,14 +384,26 @@ const IssuedCertificates = () => {
             orientation_val = 'portrait';
         }
         else {
-            const showHipaaLogo =
-                data.certificateType?.toUpperCase() === 'HIPAA COMPLIANT'
-                    ? `
-      <div class="right-sign">
-        <img src="/assets/hipaa.webp" alt="HIPAA Logo" class="certi-iogo">
-      </div>
-    `
-                    : '';
+           
+            
+          const certType = data.certificateType?.toUpperCase();
+
+            let logo = '';
+
+            if (certType?.includes('HIPAA')) {
+                logo = '/assets/hipaa.webp';
+            } else if (certType?.includes('SOC')) {
+                logo = '/assets/SOC.png';
+            }
+
+            const showCertLogo = logo
+                ? `
+                    <div class="right-sign">
+                        <img src="${logo}" alt="${certType} Logo" class="certi-iogo">
+                    </div>
+                `
+                : '';
+
             content =
                 ` <!DOCTYPE html>
                     <html lang="en">
@@ -767,7 +779,7 @@ const IssuedCertificates = () => {
                                         <p class="certi-number font-bold">ISACA ID: <span class="font-regular">1893396</span></p>
                                     </div>
                                 </div>
-                               ${showHipaaLogo}
+                               ${showCertLogo}
                             </div>
                             <div class="bottom-content">
                                 <p><span>Pentagon Infosec: (United States)</span> 30 N Gould St Ste r, Sheridan, WY 82801.</p>
@@ -783,7 +795,7 @@ const IssuedCertificates = () => {
         `;
             orientation_val = 'landscape';
         }
-       
+
         const options = {
             filename: data.certicateNumber,
 
